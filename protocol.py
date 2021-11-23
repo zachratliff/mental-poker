@@ -26,7 +26,7 @@ def verify_nizk_dleq(g, gx, h, hx, r, t):
 
 # This function generates a random element for the deck preparation
 # protocol. A ZKA of Discrete Logarithm Equality is provided. Additionally,
-# we use the Fiat-Shamier Heuristic to make the ZKA protocol non-interactive. 
+# we use the Fiat-Shamir Heuristic to make the ZKA protocol non-interactive. 
 def gen_rand_elem(curve):
     g = secrets.randbelow(curve.field.n) * curve.g
     h = secrets.randbelow(curve.field.n) * curve.g
