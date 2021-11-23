@@ -1,5 +1,8 @@
 import time
 from player_connection import PlayerConnection
+from deck import Deck
+
+deck = Deck()
 
 alice = PlayerConnection("127.0.0.1", 10001)
 bob = PlayerConnection("127.0.0.1", 10002)
@@ -22,7 +25,25 @@ alice.send_to_nodes({
     "name": "alice"
 })
 
-time.sleep(5) # Create here your main loop of the application
+bob.send_to_nodes({
+    "type": "HELLO",
+    "name": "bob"
+})
+
+time.sleep(1)
+
+alice.send_to_nodes({
+    "type": "SETTINGS",
+    "curve": "secp256r1",
+})
+
+time.sleep(1)
+
+alice.send_to_nodes({
+    "type": "DECK_PREP"
+})
+
+time.sleep(30)
 
 alice.stop()
 bob.stop()
