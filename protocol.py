@@ -37,3 +37,16 @@ def gen_rand_elem(curve):
     (r, t) = gen_nizk_dleq(curve, g, gx, h, hx, x)
 
     return (g, gx, h, hx, r, t)
+
+# Unbiased permutation generation
+# using Fisher-Yates shuffle
+def fisher_yates_shuffle(s):
+    for i in range(0, len(s) - 1):
+        j = secrets.randbelow(len(s) - i)
+        elem1 = s[i]
+        elem2 = s[j + i]
+        s[i] = elem2
+        s[j + i] = elem1
+        
+    return s
+
