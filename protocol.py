@@ -10,14 +10,14 @@ def gen_nizk_dleq(curve, g, gx, h, hx, x):
     r = secrets.randbelow(curve.field.n)
     gr = g * r
     hr = h * r
-    c = int(hashlib.sha256((str(gr.x) + str(gr.y) + str(hr.x) + str(hr.y)).encode('utf-8')).hexdigest(), 16)
+    c = int(hashlib.sha256(f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8')).hexdigest(), 16)
     t = r + c * x
     return (r, t)
 
 def verify_nizk_dleq(g, gx, h, hx, r, t):
     hr = h * r
     gr = g * r
-    c = int(hashlib.sha256((str(gr.x) + str(gr.y) + str(hr.x) + str(hr.y)).encode('utf-8')).hexdigest(), 16)
+    c = int(hashlib.sha256(f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8')).hexdigest(), 16)
     gt = g * t
     ht = h * t
 
@@ -101,7 +101,7 @@ def gen_nizk_shuffle(deck):
 
         # Apply Fiat-Shamir Heuristic to non-interactively obtain a bit e
         # We should probably be smarter about how we generate e
-        e = int(hashlib.sha256((str(c[i % len(deck)].x) + str(c[i % len(deck)].y)).encode('utf-8')).hexdigest(), 16) & 1
+        e = int(hashlib.sha256(f"{c[i % len(deck)].x}{c[i % len(deck)].y}".encode('utf-8')).hexdigest(), 16) & 1
 
         if e == 0:
             nizk.append((c, y, p_prime))
@@ -129,7 +129,8 @@ def verify_nizk_shuffle(deck, shuffled_deck, nizk):
 
     return True
 
-s1 = [0,4,5,3,2,1]
-s2 = [0,3,2,4,5,1]
-s3 = compose_shuffles(s1, s2)
-print(s3)
+def draw_card(deck):
+    # pull card off the top of the deck
+    c = deck[len(deck) - 1]
+
+    
