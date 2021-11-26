@@ -85,37 +85,53 @@ def compose_shuffles(s1, s2):
     return s
 
 # Protocol 4 of Fast Mental Poker: Shuffle Verification
-# We use Fiat-Shamir Heuristic to make the protocol
-# non-interactive.
-def gen_nizk_shuffle(deck):
+# Prover's first set of messages to send to verifiers
+# in interactive zero-knowledge argument protocol.
+# Returns the secret and permutation used to create 
+# the shuffled deck, along with a list of 3-tuples of the form
+# (y, p, c) where the c's are the first messages sent in the ZKA
+# protocol.
+def gen_zka_shuffle_m1(deck):
 
     # Use Protocol 3 to shuffle the deck
-    (x, p, deck) = shuffle_cards(deck)
+    (x, p, shuffled_deck) = shuffle_cards(deck)
 
-    # Generate NIZK proof
-    nizk = []
+    m1 = []
     for i in range(0, SHUFFLE_SECURITY_PARAM):
 
         # Shuffle the deck again
-        (y, p_prime, c) = shuffle_cards(deck) 
+        (y, p_prime, c) = shuffle_cards(shuffled_deck) 
+        m1.append((y, p_prime, c))
 
-        # Apply Fiat-Shamir Heuristic to non-interactively obtain a bit e
-        # We should probably be smarter about how we generate e
-        e = int(hashlib.sha256(f"{c[i % len(deck)].x}{c[i % len(deck)].y}".encode('utf-8')).hexdigest(), 16) & 1
+    return (x, p, shuffled_deck, m1)
 
-        if e == 0:
-            nizk.append((c, y, p_prime))
+# Protocol 4 of Fast Mental Poker: Shuffle Verification
+# Prover's second set of messages to send to verifiers
+# in interactive zero-knowledge argument protocol.
+# m1 param: 3-tuple of the form (y, p, c) where y is a secret,
+#           p is a permutation, and c is the resulting deck
+def gen_zka_shuffle_m2(shuffled_deck, x, p, m1, es):
+
+    m2 = []
+    for i in range(0, SHUFFLE_SECURITY_PARAM):
+
+        if es[i] == 0:
+            m2.append(m1[i])
         else:
-            pp_prime = compose_shuffle(p, p_prime)
-            nizk.append((c, x * y, pp_prime))
+            pp_prime = compose_shuffle(p, m1[i][1])
+            m2.append((c, x * m1[i][0], pp_prime))
 
-# Protocol 4 of Fast Mental Poker for NIZK Verification
-def verify_nizk_shuffle(deck, shuffled_deck, nizk):
+    return m2
+
+# Protocol 4 of Fast Mental Poker for ZKA Shuffle Verification
+# Takes in the pre-shuffled deck, the shuffled deck, and a message
+# m2 that attests shuffled_deck is a valid shuffle of deck
+def verify_zka_shuffle(deck, shuffled_deck, m2):
 
     for i in range(0, SHUFFLE_SECURITY_PARAM):
-        c = nizk[i][0]
-        y = nizk[i][1]
-        p = nizk[i][2] 
+        c = m2[i][0]
+        y = m2[i][1]
+        p = m2[i][2] 
 
         ds = deck
         for j in range(0, len(deck)):
@@ -128,9 +144,3 @@ def verify_nizk_shuffle(deck, shuffled_deck, nizk):
                 return False
 
     return True
-
-def draw_card(deck):
-    # pull card off the top of the deck
-    c = deck[len(deck) - 1]
-
-    
