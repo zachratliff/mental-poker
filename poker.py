@@ -1,11 +1,12 @@
 import time
 from player_connection import PlayerConnection
 from deck import Deck
+from protocol import *
 
 deck = Deck()
 
-alice = PlayerConnection("127.0.0.1", 10001)
-bob = PlayerConnection("127.0.0.1", 10002)
+alice = PlayerConnection("127.0.0.1", 10001, id='alice')
+bob = PlayerConnection("127.0.0.1", 10002, id='bob')
 
 time.sleep(1)
 
@@ -43,7 +44,33 @@ alice.send_to_nodes({
     "type": "DECK_PREP"
 })
 
+# Alice will send her own random elements
+for i in range(0, 53):
+    (g, gl, h, hl, r, t) = gen_rand_elem(alice.curve)
+    alice.send_to_nodes({
+                    "type": "CARD_PREP",
+                    "card": i,
+                    "gx": g.x,
+                    "gy": g.y,
+                    "glx": gl.x,
+                    "gly": gl.y,
+                    "hx": h.x,
+                    "hy": h.y,
+                    "hlx": hl.x,
+                    "hly": hl.y,
+                    "r": r,
+                    "t": t
+    })
+    alice.deck.prepare_card(hl, i)
+
 time.sleep(30)
+
+for i in range(0, 53):
+    if alice.deck.cards[i] != bob.deck.cards[i]:
+        print("FAILURE")
+    else:
+        print(f"SUCCESSFULLY GENERATED CARD {i}")
+
 
 alice.stop()
 bob.stop()

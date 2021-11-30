@@ -144,3 +144,25 @@ def verify_zka_shuffle(deck, shuffled_deck, m2):
                 return False
 
     return True
+
+
+# Protocol 2 of Fast Mental Poker paper
+# Generate randomness and broadcast to other players
+def send_deck_prep_points(curve):
+    for i in range(0, 53):
+        (g, gl, h, hl, r, t) = gen_rand_elem(curve)
+        self.send_to_nodes({
+                    "type": "CARD_PREP",
+                    "card": i,
+                    "gx": g.x,
+                    "gy": g.y,
+                    "glx": gl.x,
+                    "gly": gl.y,
+                    "hx": h.x,
+                    "hy": h.y,
+                    "hlx": hl.x,
+                    "hly": hl.y,
+                    "r": r,
+                    "t": t
+        })
+        self.deck.prepare_card(hl, i)
