@@ -1,7 +1,7 @@
 import secrets
 import hashlib
 
-SHUFFLE_SECURITY_PARAM = 64
+SHUFFLE_SECURITY_PARAM = 10
 
 # Returns a non-interactive zero knowledge argument of knowledge
 # for discrete logarithm equality (over an Elliptic Curve sub group)
@@ -58,12 +58,12 @@ def shuffle_cards(deck):
 
     shuffled_deck = deck
 
-    permutation = [i for i in range(1,len(deck))]
+    permutation = [i for i in range(1,len(deck.cards))]
     permutation = [0] + fisher_yates_shuffle(permutation)
 
-    for i in range(0, len(deck)):
-        x = secrets.randbelow(curve.field.n)
-        shuffled_deck[i] = deck[permutation[i]] * x
+    for i in range(0, len(deck.cards)):
+        x = secrets.randbelow(deck.curve.field.n)
+        shuffled_deck.cards[i] = deck.cards[permutation[i]] * x
 
     return (x, permutation, shuffled_deck)
 
@@ -71,8 +71,8 @@ def shuffle_cards(deck):
 # to the deck
 def apply_shuffle(deck, shuffle):
     shuffled_deck = deck
-    for i in range(0, len(deck)):
-        shuffled_deck[i] = deck[shuffle[i]]
+    for i in range(0, len(deck.cards)):
+        shuffled_deck.cards[i] = deck.cards[shuffle[i]]
 
 
 # Takes in two permutations of equal length and
@@ -95,7 +95,6 @@ def gen_zka_shuffle_m1(deck):
 
     # Use Protocol 3 to shuffle the deck
     (x, p, shuffled_deck) = shuffle_cards(deck)
-
     m1 = []
     for i in range(0, SHUFFLE_SECURITY_PARAM):
 
@@ -134,7 +133,7 @@ def verify_zka_shuffle(deck, shuffled_deck, m2):
         p = m2[i][2] 
 
         ds = deck
-        for j in range(0, len(deck)):
+        for j in range(0, len(deck.cards)):
             ds[j] *= y
 
         ds = apply_shuffle(ds, p)

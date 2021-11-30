@@ -31,19 +31,6 @@ bob.send_to_nodes({
     "name": "bob"
 })
 
-alice.send_to_nodes({
-    "type": "TEST",
-    "name": "alice",
-    "content": [[alice.curve.g.x, alice.curve.g.y],[1,2,3]]
-})
-
-time.sleep(1)
-
-alice.send_to_nodes({
-    "type": "SETTINGS",
-    "curve": "secp256r1",
-})
-
 time.sleep(1)
 
 alice.send_to_nodes({
@@ -55,16 +42,6 @@ card_prep_msg = []
 for i in range(0, 53):
     (g, gl, h, hl, r, t) = gen_rand_elem(alice.curve)
     card_prep_msg.append([[g.x, g.y], [gl.x, gl.y], [h.x, h.y], [hl.x, hl.y], r, t])
-    #alice.send_to_nodes({
-    #                "type": "CARD_PREP",
-    #                "card": i,
-    #                "g": [g.x, g.y],
-    #                "gl": [gl.x, gl.y],
-    #                "h": [h.x, h.y],
-    #                "hl": [hl.x, hl.y],
-    #                "r": r,
-    #                "t": t
-    #})
     alice.deck.prepare_card(hl, i)
 
 alice.send_to_nodes({
@@ -76,10 +53,16 @@ time.sleep(30)
 
 for i in range(0, 53):
     if alice.deck.cards[i] != bob.deck.cards[i]:
-        print("FAILURE")
+        print(f"FAILURE VERIFYING NIZK FOR CARD {i}!!! WE SHOULD ABORT")
     else:
         print(f"SUCCESSFULLY GENERATED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
 
+time.sleep(2)
+alice.send_to_nodes({
+    "type": "START_SHUFFLE",
+})
+
+time.sleep(30)
 
 alice.stop()
 bob.stop()

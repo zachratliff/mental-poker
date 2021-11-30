@@ -84,7 +84,29 @@ class PlayerConnection (Node):
 
         elif msg_type == 'START_SHUFFLE':
             print(f"{self.id}: Received START_SHUFFLE msg from: {self.peers[connected_node.id]}")
+            print(f"{self.id}: Shuffling...")
             (self.secret, self.permutation, self.shuffled_deck, m1) = gen_zka_shuffle_m1(self.deck)
+            print(f"{self.id}: Finished shuffling with security parameter {len(m1)}")
+            # Set up first message in interactive protocol
+            ys = []
+            ps = []
+            cs = []
+            for i in range(0, len(m1)):
+                ys.append(m1[i][0])
+                ps.append(m1[i][1])
+                cs.append([(m1[i][2].cards[z].x, m1[i][2].cards[z].y) for z in range(0, len(m1[i][2].cards))])
+
+            self.send_to_nodes({
+                "type": "SHUFFLE_M1",
+                "name": self.id,
+                "ys": ys,
+                "ps": ps,
+                "cs": cs
+            })
+
+        elif msg_type == 'SHUFFLE_M1':
+            print(f"{self.id}: Received SHUFFLE_M1 msg from: {self.peers[connected_node.id]}")
+            # Shuffle verification
 
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")
