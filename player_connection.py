@@ -11,6 +11,9 @@ class PlayerConnection (Node):
     peers = {}
     curve = registry.get_curve('secp256r1')
     deck = Deck()
+    shuffled_deck = deck
+    secret = 1
+    permutation = None
 
     def __init__(self, host, port, id=None, callback=None, max_connections=0):
         super(PlayerConnection, self).__init__(host, port, id, callback, max_connections)
@@ -31,7 +34,10 @@ class PlayerConnection (Node):
 
         # Handle all of the various message types
         msg_type = data['type']
-        if msg_type == 'HELLO':
+        if msg_type == 'TEST':
+            print(f"{self.id}: Received TEST msg from: {data['name']}")
+            print(f"{data['content']}")
+        elif msg_type == 'HELLO':
             print(f"{self.id}: Received HELLO msg from: {data['name']}")
             self.peers[connected_node.id] = data['name']
         elif msg_type == 'GOODBYE':
@@ -47,40 +53,38 @@ class PlayerConnection (Node):
 
             # Protocol 2 of Fast Mental Poker paper
             # Generate randomness and broadcast to other players
+            card_prep_msg = []
             for i in range(0, 53):
                 (g, gl, h, hl, r, t) = gen_rand_elem(self.curve)
-                self.send_to_nodes({
-                    "type": "CARD_PREP",
-                    "card": i,
-                    "gx": g.x,
-                    "gy": g.y,
-                    "glx": gl.x,
-                    "gly": gl.y,
-                    "hx": h.x,
-                    "hy": h.y,
-                    "hlx": hl.x,
-                    "hly": hl.y,
-                    "r": r,
-                    "t": t
-                })
+                card_prep_msg.append([[g.x, g.y], [gl.x, gl.y], [h.x, h.y], [hl.x, hl.y], r, t])
                 self.deck.prepare_card(hl, i)
+
+            self.send_to_nodes({
+                "type": "CARD_PREP",
+                "cards": card_prep_msg
+            })
 
         elif msg_type == 'CARD_PREP':
             print(f"{self.id}: Received CARD_PREP msg from: {self.peers[connected_node.id]}")
-            # Parse the card prep message and verify the NIZK
-            g = ec.Point(self.curve, data['gx'], data['gy'])
-            gl = ec.Point(self.curve, data['glx'], data['gly'])
-            h = ec.Point(self.curve, data['hx'], data['hy'])
-            hl = ec.Point(self.curve, data['hlx'], data['hly'])
-            r = data['r']
-            t = data['t']
-            i = data['card']
-            if not verify_nizk_dleq(g, gl, h, hl, r, t):
-                print(f"{self.id}: Detected cheating from: {self.peers[connected_node.id]}, I should quit.")
-            else:
-                print("{self.id}: NIZK Verified... preparing card")
-                # TODO: Combine values from all players to finish deck preparation
-                self.deck.prepare_card(hl, i)
+
+            for i in range(0, 53):
+                # Parse the card prep message and verify the NIZK
+                g = ec.Point(self.curve, data['cards'][i][0][0], data['cards'][i][0][1])
+                gl = ec.Point(self.curve, data['cards'][i][1][0], data['cards'][i][1][1])
+                h = ec.Point(self.curve, data['cards'][i][2][0], data['cards'][i][2][1])
+                hl = ec.Point(self.curve, data['cards'][i][3][0], data['cards'][i][3][1])
+                r = data['cards'][i][4]
+                t = data['cards'][i][5]
+
+                if not verify_nizk_dleq(g, gl, h, hl, r, t):
+                    print(f"{self.id}: Detected cheating from: {self.peers[connected_node.id]}, I should quit.")
+                else:
+                    print(f"{self.id}: NIZK Verified... preparing card")
+                    self.deck.prepare_card(hl, i)
+
+        elif msg_type == 'START_SHUFFLE':
+            print(f"{self.id}: Received START_SHUFFLE msg from: {self.peers[connected_node.id]}")
+            (self.secret, self.permutation, self.shuffled_deck, m1) = gen_zka_shuffle_m1(self.deck)
 
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")
