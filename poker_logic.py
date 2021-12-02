@@ -63,14 +63,14 @@ STRAIGHTS = {5: {14, 2, 3, 4, 5}} | {i: {i - j for j in range(5)} for i in range
 
 
 def highest_straight(ranks: Iterable[Rank]) -> Optional[Rank]:
-    """Returns highest rank of straight if one exists and None otherwise"""
+    """Returns the highest rank of straight if one exists and None otherwise"""
     rank_set = set(ranks)
     return max((Rank(highest_val) for highest_val, straight in STRAIGHTS.items() if straight.issubset(rank_set)),
                default=None)
 
 
 def best_hand(cards: Iterable[Card]) -> Tuple[HandRank, Tuple, str]:
-    """Returns hand rank, tie breaking tuple, and description of the best hand possible of these seven cards."""
+    """Returns the hand rank, tie-breaking tuple, and description of the best hand of given (seven) cards."""
     card_ranks = [card.rank for card in cards]
 
     rank_counts = Counter(card_ranks)
@@ -88,8 +88,8 @@ def best_hand(cards: Iterable[Card]) -> Tuple[HandRank, Tuple, str]:
     elif sorted_counts[0][1] >= 4:
         four_of_a_kind_rank = sorted_counts[0][0]
         kicker = max(rank for rank in card_ranks if rank != four_of_a_kind_rank)
-        return HandRank.FOUR_OF_A_KIND, (
-            four_of_a_kind_rank, kicker), f'Four {four_of_a_kind_rank.name.lower()}s with {kicker.name.lower()} kicker'
+        return HandRank.FOUR_OF_A_KIND, (four_of_a_kind_rank, kicker),\
+               f'Four {four_of_a_kind_rank.name.lower()}s with {kicker.name.lower()} kicker'
     elif sorted_counts[0][1] == 3 and sorted_counts[1][1] >= 2:
         three_of_a_kind = sorted_counts[0][0]
         two_of_a_kind = sorted_counts[1][0]
