@@ -61,7 +61,7 @@ def fisher_yates_shuffle(s):
 def shuffle_cards(deck):
     shuffled_deck = deck
 
-    permutation = [i for i in range(1, len(deck.cards))]
+    permutation = list(range(1, len(deck.cards)))
     permutation = [0] + fisher_yates_shuffle(permutation)
 
     for i in range(0, len(deck.cards)):
