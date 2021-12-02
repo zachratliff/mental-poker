@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+from deck import Deck
 
 SHUFFLE_SECURITY_PARAM = 10
 
@@ -58,8 +59,10 @@ def fisher_yates_shuffle(s):
 
 
 # Protocol 3 of Fast Mental Poker: Shuffle the Deck
+# Returns a shuffled deck
 def shuffle_cards(deck):
-    shuffled_deck = deck
+
+    shuffled_deck = Deck()
 
     permutation = list(range(1, len(deck.cards)))
     permutation = [0] + fisher_yates_shuffle(permutation)
@@ -74,9 +77,9 @@ def shuffle_cards(deck):
 # Applies the specified permutation
 # to the deck
 def apply_shuffle(deck, shuffle):
-    shuffled_deck = deck
+    shuffled_deck = Deck()
     for i in range(0, len(deck.cards)):
-        shuffled_deck.cards[i] = deck.cards[shuffle[i]]
+        shuffled_deck.prepare_card(deck.cards[shuffle[i]], i)
 
 
 # Takes in two permutations of equal length and
@@ -98,7 +101,10 @@ def compose_shuffles(s1, s2):
 # protocol.
 def gen_zka_shuffle_m1(deck):
     # Use Protocol 3 to shuffle the deck
+    print(f"BEFORE {deck.cards}")
     (x, p, shuffled_deck) = shuffle_cards(deck)
+    print(f"AFTER {deck.cards}")
+
     m1 = []
     for i in range(0, SHUFFLE_SECURITY_PARAM):
         # Shuffle the deck again

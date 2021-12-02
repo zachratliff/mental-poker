@@ -2,13 +2,11 @@
 
 from tinyec import registry
 
-
 class Deck:
     curve = registry.get_curve('secp256r1')
-    cards = [None for _ in range(53)]
 
     def __init__(self):
-        pass
+        self.cards = [None for _ in range(53)]
 
     # Prepare the deck (Protocol 1: Fast Mental Poker)
     # 53 total points: base of deck + 52 cards
