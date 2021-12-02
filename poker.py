@@ -1,6 +1,7 @@
 import time
-from player_connection import PlayerConnection
+
 from deck import Deck
+from player_connection import PlayerConnection
 from protocol import *
 
 deck = Deck()

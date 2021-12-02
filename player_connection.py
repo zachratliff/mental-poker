@@ -1,12 +1,13 @@
-import time
 from p2pnetwork.node import Node
+import tinyec.ec as ec
+from p2pnetwork.node import Node
+from tinyec import registry
+
 from deck import Deck
 from protocol import *
-from tinyec import registry
-import tinyec.ec as ec
 
-class PlayerConnection (Node):
 
+class PlayerConnection(Node):
     # dictionary mapping connection IDs to Peer Names
     peers = {}
     curve = registry.get_curve('secp256r1')
@@ -20,7 +21,7 @@ class PlayerConnection (Node):
 
     def outbound_node_connected(self, connected_node):
         print(f"{self.id}: outbound_node_connected: {connected_node.id}")
-        
+
     def inbound_node_connected(self, connected_node):
         print(f"{self.id}: inbound_node_connected: {connected_node.id}")
 
@@ -111,9 +112,8 @@ class PlayerConnection (Node):
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")
 
-        
     def node_disconnect_with_outbound_node(self, connected_node):
-        print("node wants to disconnect with oher outbound node: " + connected_node.id)
-        
+        print("node wants to disconnect with other outbound node: " + connected_node.id)
+
     def node_request_to_stop(self):
         print("node is requested to stop!")
