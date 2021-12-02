@@ -137,3 +137,15 @@ if __name__ == '__main__':
            pair_of_aces > \
            pair_of_tens > \
            high_card
+
+    player_hands = {
+        1: royal_flush,
+        2: other_royal_flush,
+        3: eight_straight_flush,
+        4: ace_high_straight,
+    }
+
+    a_best_hand = max(player_hands.values())
+    print(f'One best hand = {a_best_hand}')
+    winning_players = [player for player, hand in player_hands.items() if hand == a_best_hand]
+    print(f'Winning players = {winning_players}')
