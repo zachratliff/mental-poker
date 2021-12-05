@@ -9,7 +9,11 @@ from protocol import *
 
 class PlayerConnection(Node):
     # dictionary mapping connection IDs to Peer Names
+
+    #Keeps track of connected peers
     peers = {}
+    #Keeps track of shuffle info
+    peer_shuffle_state = {}
     curve = registry.get_curve('secp256r1')
     deck = Deck()
     shuffled_deck = deck
@@ -108,6 +112,7 @@ class PlayerConnection(Node):
             })
 
             # Set new deck state
+            self.peer_shuffle_state[self.id] = (self.deck.cards[0], self.shuffled_deck.cards[0])
             self.deck = self.shuffled_deck
 
         elif msg_type == 'SHUFFLE':
@@ -126,8 +131,36 @@ class PlayerConnection(Node):
             print(f"VERIFIED: {verified}")
             if verified:
                 # Set new deck as the shuffled deck
+                self.peer_shuffle_state[connected_node.id] = (self.deck.cards[0], self.shuffled_deck.cards[0])
                 self.deck = self.shuffled_deck
 
+        elif msg_type == 'DRAW_CARD':
+            print(f"{self.id}: Received DRAW_CARD msg from: {self.peers[connected_node.id]}")
+            idx = data['idx']
+            x_inv = ec.mod_inv(self.secret, self.deck.curve.field.n)
+            c = self.deck.cards[idx] * x_inv
+            (r, t) = gen_nizk_dleq(self.deck.curve, c, self.deck.cards[idx], self.peer_shuffle_state[self.id][0], self.peer_shuffle_state[self.id][1], self.secret)
+            verified = verify_nizk_dleq(c, self.deck.cards[idx], self.peer_shuffle_state[self.id][0], self.peer_shuffle_state[self.id][1], r, t)
+            print(f"VERIFIED CARD DRAW: {verified}")
+            self.send_to_nodes({
+                "type": "DRAW_CARD_RESPONSE",
+                "idx": idx,
+                "c": [c.x, c.y],
+                "r": r,
+                "t": t
+            })
+        elif msg_type == 'DRAW_CARD_RESPONSE':
+            print(f"{self.id}: Received DRAW_CARD_RESPONSE msg from: {self.peers[connected_node.id]}")
+            c = ec.Point(self.curve, data['c'][0], data['c'][1])
+            r = data['r']
+            t = data['t']
+            idx = data['idx']
+            verified = verify_nizk_dleq(c, self.deck.cards[idx], self.peer_shuffle_state[connected_node.id][0], self.peer_shuffle_state[connected_node.id][1], r, t)
+            print(f"VERIFIED CARD DRAW: {verified}")
+
+            x_inv = ec.mod_inv(self.secret, self.deck.curve.field.n)
+            card = c * x_inv
+            print(f"DREW CARD: {card}")
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")
 

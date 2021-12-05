@@ -78,6 +78,12 @@ for i in range(0, 53):
         print(f"SUCCESSFULLY SHUFFLED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
 
 # Draw cards from the deck and play poker
+alice.send_to_nodes({
+    "type": "DRAW_CARD",
+    "idx": 5
+})
+
+time.sleep(10)
 
 alice.stop()
 bob.stop()
