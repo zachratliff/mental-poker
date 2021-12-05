@@ -19,8 +19,8 @@ CS227 Mental Poker Project
     - Protocol 2 (Generate a random element) :white_check_mark:
     - Protocol 3 (Shuffle) :white_check_mark:
     - Protocol 4 (Shuffle Verification) :white_check_mark:
-    - Protocol 5 (Card Drawing) (in progress)
-    - Protocol 6 (Card Opening) (in progress)
+    - Protocol 5 (Card Drawing) :white_check_mark:
+    - Protocol 6 (Card Opening) :white_check_mark:
 
 - Develop actual card game
     - Something like War is the simplest

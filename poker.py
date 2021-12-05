@@ -59,28 +59,39 @@ for i in range(0, 53):
         print(f"SUCCESSFULLY GENERATED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
 
 time.sleep(2)
+
 alice.send_to_nodes({
     "type": "START_SHUFFLE",
 })
 
-time.sleep(35)
+time.sleep(30)
 
 bob.send_to_nodes({
     "type": "START_SHUFFLE",
 })
 
-time.sleep(35)
-
-for i in range(0, 53):
-    if alice.deck.cards[i] != bob.deck.cards[i]:
-        print(f"FAILURE DURING SHUFFLING {i}!!! WE SHOULD ABORT")
-    else:
-        print(f"SUCCESSFULLY SHUFFLED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
+time.sleep(30)
 
 # Draw cards from the deck and play poker
 alice.send_to_nodes({
-    "type": "DRAW_CARD",
-    "idx": 5
+    "type": "DRAW_CARDS",
+    "idxs": [1,2,3,4,5]
+})
+
+bob.send_to_nodes({
+    "type": "DRAW_CARDS",
+    "idxs": [6,7,8,9,10]
+})
+
+time.sleep(10)
+
+# Reveal hands 
+alice.send_to_nodes({
+    "type": "REQUEST_REVEAL"
+})
+
+bob.send_to_nodes({
+    "type": "REQUEST_REVEAL"
 })
 
 time.sleep(10)
