@@ -167,3 +167,9 @@ def verify_nizk_shuffle(deck, shuffled_deck, m):
                 return False
 
     return True
+
+# Protocol 5 of Fast Mental Poker: Card Drawing
+# Allows for drawing multiple cards at once from
+# the deck
+#def draw_cards(deck, idxs):
+    

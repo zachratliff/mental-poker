@@ -89,7 +89,7 @@ class PlayerConnection(Node):
             (self.secret, self.permutation, self.shuffled_deck, m) = gen_nizk_shuffle(self.deck)
             print(f"{self.id}: Finished shuffling with security parameter {len(m)}")
 
-            # Set up first message in interactive protocol
+            # Send shuffled deck with NIZK
             ys = []
             ps = []
             cs = []
@@ -97,7 +97,6 @@ class PlayerConnection(Node):
                 cs.append(m[i][0].to_point_list())
                 ys.append(m[i][1])
                 ps.append(m[i][2])
-                #cs.append([(m1[i][2].cards[z].x, m1[i][2].cards[z].y) for z in range(0, len(m1[i][2].cards))])
 
             self.send_to_nodes({
                 "type": "SHUFFLE",
@@ -107,6 +106,9 @@ class PlayerConnection(Node):
                 "ps": ps,
                 "cs": cs
             })
+
+            # Set new deck state
+            self.deck = self.shuffled_deck
 
         elif msg_type == 'SHUFFLE':
             print(f"{self.id}: Received SHUFFLE msg from: {self.peers[connected_node.id]}")
@@ -122,6 +124,9 @@ class PlayerConnection(Node):
             self.shuffled_deck.setup_deck_from_xy_coords(data['shuffled_deck'])
             verified = verify_nizk_shuffle(self.deck, self.shuffled_deck, m)
             print(f"VERIFIED: {verified}")
+            if verified:
+                # Set new deck as the shuffled deck
+                self.deck = self.shuffled_deck
 
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")

@@ -63,7 +63,21 @@ alice.send_to_nodes({
     "type": "START_SHUFFLE",
 })
 
-time.sleep(50)
+time.sleep(35)
+
+bob.send_to_nodes({
+    "type": "START_SHUFFLE",
+})
+
+time.sleep(35)
+
+for i in range(0, 53):
+    if alice.deck.cards[i] != bob.deck.cards[i]:
+        print(f"FAILURE DURING SHUFFLING {i}!!! WE SHOULD ABORT")
+    else:
+        print(f"SUCCESSFULLY SHUFFLED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
+
+# Draw cards from the deck and play poker
 
 alice.stop()
 bob.stop()
