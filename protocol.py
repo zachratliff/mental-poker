@@ -66,9 +66,9 @@ def shuffle_cards(deck):
 
     permutation = list(range(1, len(deck.cards)))
     permutation = [0] + fisher_yates_shuffle(permutation)
+    x = secrets.randbelow(deck.curve.field.n)
 
     for i in range(0, len(deck.cards)):
-        x = secrets.randbelow(deck.curve.field.n)
         shuffled_deck.cards[i] = deck.cards[permutation[i]] * x
 
     return x, permutation, shuffled_deck
@@ -79,8 +79,9 @@ def shuffle_cards(deck):
 def apply_shuffle(deck, shuffle):
     shuffled_deck = Deck()
     for i in range(0, len(deck.cards)):
-        shuffled_deck.prepare_card(deck.cards[shuffle[i]], i)
+        shuffled_deck.cards[i] = deck.cards[shuffle[i]]
 
+    return shuffled_deck
 
 # Takes in two permutations of equal length and
 # combines them into one e.g. \pi * \pi' 
@@ -93,62 +94,76 @@ def compose_shuffles(s1, s2):
 
 
 # Protocol 4 of Fast Mental Poker: Shuffle Verification
-# Prover's first set of messages to send to verifiers
-# in interactive zero-knowledge argument protocol.
+# Uses Fiat-Shamir heuristic to make protocol non-interactive
 # Returns the secret and permutation used to create 
 # the shuffled deck, along with a list of 3-tuples of the form
 # (y, p, c) where the c's are the first messages sent in the ZKA
 # protocol.
-def gen_zka_shuffle_m1(deck):
+def gen_nizk_shuffle(deck):
     # Use Protocol 3 to shuffle the deck
-    print(f"BEFORE {deck.cards}")
     (x, p, shuffled_deck) = shuffle_cards(deck)
-    print(f"AFTER {deck.cards}")
 
-    m1 = []
+    m = []
     for i in range(0, SHUFFLE_SECURITY_PARAM):
         # Shuffle the deck again
         (y, p_prime, c) = shuffle_cards(shuffled_deck)
-        m1.append((y, p_prime, c))
 
-    return x, p, shuffled_deck, m1
+        #Generate es
+        rom_query = ""
+        for z in deck.cards:
+            rom_query += f"{z.x}{z.y}"
 
+        for z in shuffled_deck.cards:
+            rom_query += f"{z.x}{z.y}"
 
-# Protocol 4 of Fast Mental Poker: Shuffle Verification
-# Prover's second set of messages to send to verifiers
-# in interactive zero-knowledge argument protocol.
-# m1 param: 3-tuple of the form (y, p, c) where y is a secret,
-#           p is a permutation, and c is the resulting deck
-def gen_zka_shuffle_m2(shuffled_deck, x, p, m1, es):
-    m2 = []
-    for i in range(0, SHUFFLE_SECURITY_PARAM):
+        for z in c.cards:
+            rom_query += f"{z.x}{z.y}"
 
-        if es[i] == 0:
-            m2.append(m1[i])
+        e = int(hashlib.sha256(rom_query.encode('utf-8')).hexdigest(), 16) & 1
+
+        if e == 0:
+            m.append((c, y, p_prime))
         else:
-            pp_prime = compose_shuffle(p, m1[i][1])
-            m2.append((c, x * m1[i][0], pp_prime))
+            pp_prime = compose_shuffles(p, p_prime)
+            m.append((c, x * y, pp_prime))
 
-    return m2
-
+    return x, p, shuffled_deck, m
 
 # Protocol 4 of Fast Mental Poker for ZKA Shuffle Verification
 # Takes in the pre-shuffled deck, the shuffled deck, and a message
-# m2 that attests shuffled_deck is a valid shuffle of deck
-def verify_zka_shuffle(deck, shuffled_deck, m2):
-    for i in range(0, SHUFFLE_SECURITY_PARAM):
-        c = m2[i][0]
-        y = m2[i][1]
-        p = m2[i][2]
+# m that attests shuffled_deck is a valid shuffle of deck.
+# Uses Fiat-Shamir Heuristic
+def verify_nizk_shuffle(deck, shuffled_deck, m):
 
-        ds = deck
+    for i in range(0, SHUFFLE_SECURITY_PARAM):
+        c = m[i][0]
+        y = m[i][1]
+        p = m[i][2]
+
+        #Generate es
+        rom_query = ""
+
+        for z in deck.cards:
+            rom_query += f"{z.x}{z.y}"
+
+        for z in shuffled_deck.cards:
+            rom_query += f"{z.x}{z.y}"
+
+        for z in c.cards:
+            rom_query += f"{z.x}{z.y}"
+
+        e = int(hashlib.sha256(rom_query.encode('utf-8')).hexdigest(), 16) & 1
+        ds = Deck()
         for j in range(0, len(deck.cards)):
-            ds[j] *= y
+            if e == 0:
+                ds.cards[j] = shuffled_deck.cards[j] * y
+            else:
+                ds.cards[j] = deck.cards[j] * y
 
         ds = apply_shuffle(ds, p)
 
-        for j in range(0, len(deck)):
-            if ds[j] != c[j]:
+        for j in range(0, len(deck.cards)):
+            if ds.cards[j] != c.cards[j]:
                 return False
 
     return True

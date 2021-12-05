@@ -63,7 +63,7 @@ alice.send_to_nodes({
     "type": "START_SHUFFLE",
 })
 
-time.sleep(30)
+time.sleep(50)
 
 alice.stop()
 bob.stop()
