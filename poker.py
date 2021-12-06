@@ -88,7 +88,7 @@ bob.send_to_nodes({
     "idxs": list(range(HAND_SIZE + 1, 2 * HAND_SIZE + 1))
 })
 
-time.sleep(20)
+time.sleep(10)
 
 alice_hand = Hand(card_mapping[alice.hand[i][0].x, alice.hand[i][0].y] for i in range(HAND_SIZE))
 bob_hand = Hand(card_mapping[bob.hand[i][0].x, bob.hand[i][0].y] for i in range(HAND_SIZE))
