@@ -80,7 +80,8 @@ if __name__ == '__main__':
     three_threes_equal_kickers = Hand({d3, s3, h3, h2, d4, st, sa})
     three_threes_worse_kickers = Hand({d3, s3, h3, h2, d4, st, sk})
     two_pair_aces_tens_nine = Hand({sa, ha, st, ht, d9, d3, d2})
-    three_pair_actually_same = Hand({sa, ha, st, ht, d9, h9, d2})
+    two_pair_actually_same = Hand({sa, ha, st, ht, d9, h9, d2})
+    two_pair_also_same = Hand({st, ht, sa, ha, d9, h9, d2})
     pair_of_aces = Hand({sa, da, st, h9, d4, d3, h2})
     pair_of_tens = Hand({sa, dt, st, h9, d4, d3, h2})
     high_card = Hand({sa, sq, dt, s9, d5, d3, h2})
@@ -107,7 +108,8 @@ if __name__ == '__main__':
     print(three_threes_equal_kickers)
     print(three_threes_worse_kickers)
     print(two_pair_aces_tens_nine)
-    print(three_pair_actually_same)
+    print(two_pair_actually_same)
+    print(two_pair_also_same)
     print(pair_of_aces)
     print(pair_of_tens)
     print(high_card)
@@ -133,7 +135,8 @@ if __name__ == '__main__':
            three_threes_equal_kickers > \
            three_threes_worse_kickers > \
            two_pair_aces_tens_nine == \
-           three_pair_actually_same > \
+           two_pair_actually_same == \
+           two_pair_also_same > \
            pair_of_aces > \
            pair_of_tens > \
            high_card

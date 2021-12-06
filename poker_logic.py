@@ -104,7 +104,7 @@ def best_hand(cards: Iterable[Card]) -> Tuple[HandRank, Tuple, str]:
         three_of_a_kind_rank = sorted_counts[0][0]
         kickers = tuple(rank for rank in sorted_ranks if rank != three_of_a_kind_rank)[:2]
         return HandRank.THREE_OF_A_KIND, (three_of_a_kind_rank,) + kickers, \
-               f'Three {three_of_a_kind_rank.name.lower()} with ' \
+               f'Three {three_of_a_kind_rank.name.lower()}s with ' \
                f'{kickers[0].name.lower()} and {kickers[1].name.lower()} kickers'
     elif sorted_counts[1][1] == 2:
         higher_pair = sorted_counts[0][0]
@@ -117,7 +117,7 @@ def best_hand(cards: Iterable[Card]) -> Tuple[HandRank, Tuple, str]:
         pair_rank = sorted_counts[0][0]
         kickers = tuple(rank for rank in sorted_ranks if rank != pair_rank)[:3]
         return HandRank.PAIR, (pair_rank,) + kickers, \
-               f'Pair of {pair_rank.name.lower()} with kickers {", ".join(kicker.name.lower() for kicker in kickers)}'
+               f'Pair of {pair_rank.name.lower()}s with kickers {", ".join(kicker.name.lower() for kicker in kickers)}'
     else:
         ranks = sorted_ranks[:5]
         return HandRank.HIGH_CARD, ranks, f'High card with ranks {", ".join(rank.name.lower() for rank in ranks)}'
