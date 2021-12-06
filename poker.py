@@ -104,6 +104,15 @@ time.sleep(10)
 # At this point Alice and Bob have both verified each other's 5-card hands
 # and can check who won the 5-card draw
 # TODO: Compare alice.hand with bob.hand and output winner
+# To get each card in Alice and Bob's hand:
+# alice Card i: alice.hand[i][0]
+# bob Card i: bob.hand[i][0]
+# where i = 0...4 (5 cards draw) 
+
+# just apply mapping of these cards (elliptic curve points) to card values 
+# and compare hands
+
+time.sleep(10)
 
 alice.stop()
 bob.stop()
