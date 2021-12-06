@@ -213,6 +213,8 @@ class PlayerConnection(Node):
                                             self.peer_shuffle_state[connected_node.id][0],
                                             self.peer_shuffle_state[connected_node.id][1], r, t)
                 print(f"{self.id}: card {i} verified from {connected_node.id}? {verified}")
+                #Set peer hand state to actual card value
+                self.peer_hand_state[connected_node.id][i] = c
 
         else:
             print(f"Received message of unknown type {msg_type} from node: {connected_node.id}")
