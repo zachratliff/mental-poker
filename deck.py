@@ -2,6 +2,7 @@
 import tinyec.ec as ec
 from tinyec import registry
 
+
 class Deck:
     curve = registry.get_curve('secp256r1')
 

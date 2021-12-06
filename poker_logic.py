@@ -88,7 +88,7 @@ def best_hand(cards: Iterable[Card]) -> Tuple[HandRank, Tuple, str]:
     elif sorted_counts[0][1] >= 4:
         four_of_a_kind_rank = sorted_counts[0][0]
         kicker = max(rank for rank in card_ranks if rank != four_of_a_kind_rank)
-        return HandRank.FOUR_OF_A_KIND, (four_of_a_kind_rank, kicker),\
+        return HandRank.FOUR_OF_A_KIND, (four_of_a_kind_rank, kicker), \
                f'Four {four_of_a_kind_rank.name.lower()}s with {kicker.name.lower()} kicker'
     elif sorted_counts[0][1] == 3 and sorted_counts[1][1] >= 2:
         three_of_a_kind = sorted_counts[0][0]

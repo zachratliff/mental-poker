@@ -75,12 +75,12 @@ time.sleep(30)
 # Draw cards from the deck and play poker
 alice.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": [1,2,3,4,5]
+    "idxs": [1, 2, 3, 4, 5]
 })
 
 bob.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": [6,7,8,9,10]
+    "idxs": [6, 7, 8, 9, 10]
 })
 
 time.sleep(10)

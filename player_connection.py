@@ -10,7 +10,7 @@ from protocol import *
 class PlayerConnection(Node):
     # dictionary mapping connection IDs to Peer Names
 
-    #Keeps track of peer info
+    # Keeps track of peer info
     peer_shuffle_state = {}
     peer_hand_state = {}
 
@@ -25,6 +25,7 @@ class PlayerConnection(Node):
     permutation = None
 
     def __init__(self, host, port, id=None, callback=None, max_connections=0):
+
         super(PlayerConnection, self).__init__(host, port, id, callback, max_connections)
 
     def outbound_node_connected(self, connected_node):
@@ -147,7 +148,8 @@ class PlayerConnection(Node):
             for idx in idxs:
                 c = self.deck.cards[idx] * x_inv
                 self.peer_hand_state[connected_node.id].append(c)
-                (r, t) = gen_nizk_dleq(self.deck.curve, c, self.deck.cards[idx], self.peer_shuffle_state[self.id][0], self.peer_shuffle_state[self.id][1], self.secret)
+                (r, t) = gen_nizk_dleq(self.deck.curve, c, self.deck.cards[idx], self.peer_shuffle_state[self.id][0],
+                                       self.peer_shuffle_state[self.id][1], self.secret)
                 cs.append([c.x, c.y])
                 rs.append(r)
                 ts.append(t)
@@ -170,12 +172,14 @@ class PlayerConnection(Node):
                 c = ec.Point(self.curve, data['cs'][i][0], data['cs'][i][1])
                 r = data['rs'][i]
                 t = data['ts'][i]
-                verified = verify_nizk_dleq(c, self.deck.cards[idxs[i]], self.peer_shuffle_state[connected_node.id][0], self.peer_shuffle_state[connected_node.id][1], r, t)
+                verified = verify_nizk_dleq(c, self.deck.cards[idxs[i]], self.peer_shuffle_state[connected_node.id][0],
+                                            self.peer_shuffle_state[connected_node.id][1], r, t)
                 card = c * x_inv
                 print(f"{self.id}: DREW CARD: ({card.x},{card.y})")
 
                 # Save card to hand and generate proof for later reveal
-                (r, t) = gen_nizk_dleq(self.deck.curve, card, c, self.peer_shuffle_state[self.id][0], self.peer_shuffle_state[self.id][1], self.secret)
+                (r, t) = gen_nizk_dleq(self.deck.curve, card, c, self.peer_shuffle_state[self.id][0],
+                                       self.peer_shuffle_state[self.id][1], self.secret)
                 self.hand.append((card, r, t))
 
         elif msg_type == 'REQUEST_REVEAL':
@@ -205,7 +209,9 @@ class PlayerConnection(Node):
                 c = ec.Point(self.curve, claimed_cards[i][0], claimed_cards[i][1])
                 r = data['rs'][i]
                 t = data['ts'][i]
-                verified = verify_nizk_dleq(c, self.peer_hand_state[connected_node.id][i], self.peer_shuffle_state[connected_node.id][0], self.peer_shuffle_state[connected_node.id][1], r, t)
+                verified = verify_nizk_dleq(c, self.peer_hand_state[connected_node.id][i],
+                                            self.peer_shuffle_state[connected_node.id][0],
+                                            self.peer_shuffle_state[connected_node.id][1], r, t)
                 print(f"{self.id}: card {i} verified from {connected_node.id}? {verified}")
 
         else:

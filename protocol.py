@@ -61,7 +61,6 @@ def fisher_yates_shuffle(s):
 # Protocol 3 of Fast Mental Poker: Shuffle the Deck
 # Returns a shuffled deck
 def shuffle_cards(deck):
-
     shuffled_deck = Deck()
 
     permutation = list(range(1, len(deck.cards)))
@@ -82,6 +81,7 @@ def apply_shuffle(deck, shuffle):
         shuffled_deck.cards[i] = deck.cards[shuffle[i]]
 
     return shuffled_deck
+
 
 # Takes in two permutations of equal length and
 # combines them into one e.g. \pi * \pi' 
@@ -108,7 +108,7 @@ def gen_nizk_shuffle(deck):
         # Shuffle the deck again
         (y, p_prime, c) = shuffle_cards(shuffled_deck)
 
-        #Generate es
+        # Generate es
         rom_query = ""
         for z in deck.cards:
             rom_query += f"{z.x}{z.y}"
@@ -129,18 +129,18 @@ def gen_nizk_shuffle(deck):
 
     return x, p, shuffled_deck, m
 
+
 # Protocol 4 of Fast Mental Poker for ZKA Shuffle Verification
 # Takes in the pre-shuffled deck, the shuffled deck, and a message
 # m that attests shuffled_deck is a valid shuffle of deck.
 # Uses Fiat-Shamir Heuristic
 def verify_nizk_shuffle(deck, shuffled_deck, m):
-
     for i in range(0, SHUFFLE_SECURITY_PARAM):
         c = m[i][0]
         y = m[i][1]
         p = m[i][2]
 
-        #Generate es
+        # Generate es
         rom_query = ""
 
         for z in deck.cards:
@@ -167,5 +167,3 @@ def verify_nizk_shuffle(deck, shuffled_deck, m):
                 return False
 
     return True
-
-    
