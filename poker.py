@@ -5,6 +5,8 @@ from player_connection import PlayerConnection
 from poker_logic import Hand
 from protocol import gen_rand_elem
 
+HAND_SIZE = 7
+
 deck = Deck()
 
 alice = PlayerConnection("127.0.0.1", 10001, id='alice')
@@ -78,18 +80,18 @@ time.sleep(30)
 # Draw cards from the deck and play poker. 7 cards each.
 alice.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": range(1, 8)
+    "idxs": list(range(1, HAND_SIZE + 1))
 })
 
 bob.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": range(8, 15)
+    "idxs": list(range(HAND_SIZE + 1, 2 * HAND_SIZE + 1))
 })
 
-time.sleep(10)
+time.sleep(20)
 
-alice_hand = Hand(card_mapping[alice.hand[i][0].x, alice.hand[i][0].y] for i in range(5))
-bob_hand = Hand(card_mapping[bob.hand[i][0].x, bob.hand[i][0].y] for i in range(5))
+alice_hand = Hand(card_mapping[alice.hand[i][0].x, alice.hand[i][0].y] for i in range(HAND_SIZE))
+bob_hand = Hand(card_mapping[bob.hand[i][0].x, bob.hand[i][0].y] for i in range(HAND_SIZE))
 
 print(f"Alice's hand: {alice_hand.cards_str()}")
 print(f"Bob's hand: {bob_hand.cards_str()}")
