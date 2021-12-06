@@ -93,8 +93,8 @@ time.sleep(10)
 alice_hand = Hand(card_mapping[alice.hand[i][0].x, alice.hand[i][0].y] for i in range(HAND_SIZE))
 bob_hand = Hand(card_mapping[bob.hand[i][0].x, bob.hand[i][0].y] for i in range(HAND_SIZE))
 
-print(f"Alice's hand: {alice_hand.cards_str()}")
-print(f"Bob's hand: {bob_hand.cards_str()}")
+print(f"Alice's hand: {alice_hand}")
+print(f"Bob's hand: {bob_hand}")
 
 # Reveal hands
 alice.send_to_nodes({
@@ -108,11 +108,11 @@ bob.send_to_nodes({
 time.sleep(20)
 
 if alice_hand > bob_hand:
-    print(f'Alice beats Bob with a {alice_hand} over {bob_hand}.')
+    print(f'Alice beats Bob with a hand of {alice_hand.description} over {bob_hand.description}.')
 elif alice_hand < bob_hand:
-    print(f'Bob beats Alice with a {bob_hand} over {alice_hand}.')
+    print(f'Bob beats Alice with a hand of {bob_hand.description} over {alice_hand.description}.')
 else:
-    print(f'Alice and Bob split the pot both with a {alice_hand}.')
+    print(f'Alice and Bob split the pot both with hands of {alice_hand.description}.')
 
 time.sleep(10)
 

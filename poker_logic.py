@@ -139,7 +139,4 @@ class Hand:
         self.hand_rank, self.tie_breaking, self.description = best_hand(self.cards)
 
     def __str__(self):
-        return self.description
-
-    def cards_str(self):
         return ', '.join(str(card) for card in self.cards)
