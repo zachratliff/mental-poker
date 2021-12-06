@@ -2,7 +2,8 @@ import time
 
 from deck import Deck
 from player_connection import PlayerConnection
-from protocol import *
+from poker_logic import Hand
+from protocol import gen_rand_elem
 
 deck = Deck()
 
@@ -57,11 +58,8 @@ for i in range(0, 53):
         print(f"FAILURE VERIFYING NIZK FOR CARD {i}!!! WE SHOULD ABORT")
     else:
         print(f"SUCCESSFULLY GENERATED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
-        #TODO: At this point we should map each elliptic curve point to a card value
-        # Example:
-        #  alice.deck.card[1] = ACE OF SPADES
-        #  alice.deck.card[2] = TWO OF SPADES
-        #  alice.deck.card[0] is reserved for the base of the deck and shouldn't be mapped
+
+card_mapping = alice.deck.get_mapping()
 
 time.sleep(2)
 
@@ -77,20 +75,26 @@ bob.send_to_nodes({
 
 time.sleep(30)
 
-# Draw cards from the deck and play poker
+# Draw cards from the deck and play poker. 7 cards each.
 alice.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": [1, 2, 3, 4, 5]
+    "idxs": range(1, 8)
 })
 
 bob.send_to_nodes({
     "type": "DRAW_CARDS",
-    "idxs": [6, 7, 8, 9, 10]
+    "idxs": range(8, 15)
 })
 
 time.sleep(10)
 
-# Reveal hands 
+alice_hand = Hand(card_mapping[alice.hand[i][0].x, alice.hand[i][0].y] for i in range(5))
+bob_hand = Hand(card_mapping[bob.hand[i][0].x, bob.hand[i][0].y] for i in range(5))
+
+print(f"Alice's hand: {alice_hand.cards_str()}")
+print(f"Bob's hand: {bob_hand.cards_str()}")
+
+# Reveal hands
 alice.send_to_nodes({
     "type": "REQUEST_REVEAL"
 })
@@ -99,18 +103,14 @@ bob.send_to_nodes({
     "type": "REQUEST_REVEAL"
 })
 
-time.sleep(10)
+time.sleep(20)
 
-# At this point Alice and Bob have both verified each other's 5-card hands
-# and can check who won the 5-card draw
-# TODO: Compare alice.hand with bob.hand and output winner
-# To get each card in Alice and Bob's hand:
-# alice Card i: alice.hand[i][0]
-# bob Card i: bob.hand[i][0]
-# where i = 0...4 (5 cards draw) 
-
-# just apply mapping of these cards (elliptic curve points) to card values 
-# and compare hands
+if alice_hand > bob_hand:
+    print(f'Alice beats Bob with a {alice_hand} over {bob_hand}.')
+elif alice_hand < bob_hand:
+    print(f'Bob beats Alice with a {bob_hand} over {alice_hand}.')
+else:
+    print(f'Alice and Bob split the pot both with a {alice_hand}.')
 
 time.sleep(10)
 

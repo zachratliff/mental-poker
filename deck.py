@@ -2,12 +2,14 @@
 import tinyec.ec as ec
 from tinyec import registry
 
+from poker_logic import ALL_CARDS
+
 
 class Deck:
     curve = registry.get_curve('secp256r1')
 
     def __init__(self):
-        self.cards = [None for _ in range(53)]
+        self.cards = [None] * 53
 
     # Prepare the deck (Protocol 1: Fast Mental Poker)
     # 53 total points: base of deck + 52 cards
@@ -31,3 +33,6 @@ class Deck:
             point_list.append([card.x, card.y])
 
         return point_list
+
+    def get_mapping(self):
+        return {(self.cards[i].x, self.cards[i].y): card for i, card in enumerate(ALL_CARDS, 1)}

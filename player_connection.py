@@ -1,10 +1,9 @@
-from p2pnetwork.node import Node
 import tinyec.ec as ec
 from p2pnetwork.node import Node
 from tinyec import registry
 
 from deck import Deck
-from protocol import *
+from protocol import gen_rand_elem, verify_nizk_dleq, verify_nizk_shuffle, gen_nizk_dleq, gen_nizk_shuffle
 
 
 class PlayerConnection(Node):
@@ -174,6 +173,7 @@ class PlayerConnection(Node):
                 t = data['ts'][i]
                 verified = verify_nizk_dleq(c, self.deck.cards[idxs[i]], self.peer_shuffle_state[connected_node.id][0],
                                             self.peer_shuffle_state[connected_node.id][1], r, t)
+                print(f"{self.id}: Verified drawn card? {verified}")
                 card = c * x_inv
                 print(f"{self.id}: DREW CARD: ({card.x},{card.y})")
 
@@ -203,7 +203,6 @@ class PlayerConnection(Node):
             print(f"{self.id}: Received REVEAL_CARDS msg from: {connected_node.id}")
             # A list of (x,y) coords for EC points representing cards
             claimed_cards = data['cards']
-            x_inv = ec.mod_inv(self.secret, self.deck.curve.field.n)
 
             for i in range(0, len(claimed_cards)):
                 c = ec.Point(self.curve, claimed_cards[i][0], claimed_cards[i][1])
@@ -213,7 +212,7 @@ class PlayerConnection(Node):
                                             self.peer_shuffle_state[connected_node.id][0],
                                             self.peer_shuffle_state[connected_node.id][1], r, t)
                 print(f"{self.id}: card {i} verified from {connected_node.id}? {verified}")
-                #Set peer hand state to actual card value
+                # Set peer hand state to actual card value
                 self.peer_hand_state[connected_node.id][i] = c
 
         else:

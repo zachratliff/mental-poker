@@ -1,6 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass, field
 from enum import IntEnum, Enum, auto
+from itertools import product
 from operator import itemgetter
 from typing import NamedTuple, Iterable, Optional, Set, Tuple, FrozenSet
 
@@ -28,6 +29,17 @@ class Suit(Enum):
     SPADES = auto()
 
 
+class Card(NamedTuple):
+    rank: Rank
+    suit: Suit
+
+    def __str__(self):
+        return f'{self.rank.name.title()} of {self.suit.name.lower()}'
+
+
+ALL_CARDS = [Card(rank, suit) for rank, suit in product(Rank, Suit)]
+
+
 class HandRank(IntEnum):
     HIGH_CARD = 1
     PAIR = 2
@@ -39,14 +51,6 @@ class HandRank(IntEnum):
     FOUR_OF_A_KIND = 8
     STRAIGHT_FLUSH = 9
     ROYAL_FLUSH = 10
-
-
-class Card(NamedTuple):
-    rank: Rank
-    suit: Suit
-
-    def __str__(self):
-        return f'{self.rank.name.title()} of {self.suit.name.lower()}'
 
 
 def flush_card_ranks(cards: Iterable[Card]) -> Optional[Set[Rank]]:
@@ -136,3 +140,6 @@ class Hand:
 
     def __str__(self):
         return self.description
+
+    def cards_str(self):
+        return ', '.join(str(card) for card in self.cards)
