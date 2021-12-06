@@ -57,6 +57,11 @@ for i in range(0, 53):
         print(f"FAILURE VERIFYING NIZK FOR CARD {i}!!! WE SHOULD ABORT")
     else:
         print(f"SUCCESSFULLY GENERATED CARD {i}: ({alice.deck.cards[i].x},{alice.deck.cards[i].y})")
+        #TODO: At this point we should map each elliptic curve point to a card value
+        # Example:
+        #  alice.deck.card[1] = ACE OF SPADES
+        #  alice.deck.card[2] = TWO OF SPADES
+        #  alice.deck.card[0] is reserved for the base of the deck and shouldn't be mapped
 
 time.sleep(2)
 
@@ -95,6 +100,10 @@ bob.send_to_nodes({
 })
 
 time.sleep(10)
+
+# At this point Alice and Bob have both verified each other's 5-card hands
+# and can check who won the 5-card draw
+# TODO: Compare alice.hand with bob.hand and output winner
 
 alice.stop()
 bob.stop()
