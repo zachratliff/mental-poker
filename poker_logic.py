@@ -63,7 +63,7 @@ def flush_card_ranks(cards: Iterable[Card]) -> Optional[Set[Rank]]:
         return None
 
 
-STRAIGHTS = {5: {14, 2, 3, 4, 5}} | {i: {i - j for j in range(5)} for i in range(6, 15)}
+STRAIGHTS = {**{5: {14, 2, 3, 4, 5}}, **{i: {i - j for j in range(5)} for i in range(6, 15)}}
 
 
 def highest_straight(ranks: Iterable[Rank]) -> Optional[Rank]:
