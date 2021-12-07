@@ -3,7 +3,7 @@ import secrets
 
 from deck import Deck
 
-SHUFFLE_SECURITY_PARAM = 1
+SHUFFLE_SECURITY_PARAM = 5
 
 
 # Returns a non-interactive zero knowledge argument of knowledge

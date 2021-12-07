@@ -1,20 +1,26 @@
-# mental-poker
-CS227 Mental Poker Project
+# Mental Poker
+CS227 Mental Poker Project: An implementation of the Fast Mental Poker protocol by Wei and Wang. 
 
 ## Installation
 `python3 -m pip install -r requirements.txt`
 
+We have tested using Python 3.8
+
 ## Run
 `python3 poker.py`
 
+The above program does the following:
+ 
+1. performs the multi-party deck generation between two parties, Alice and Bob
+2. performs the multi-party shuffle on the generated deck
+3. Alice and Bob each draw 7 cards from the deck
+4. Alice and Bob reveal their cards and the person with the best 5-card hand wins
 
-## TODO
-- Set up group where DDH assumption holds :white_check_mark:
-    - Using `sec256k1`, a prime-order elliptic curve E over the field GF(p), where p is prime and E has large embedding degree
-- set up P2P message exchange between players :white_check_mark:
-    - Using `p2pnetwork` python library for authenticated message exchange
-- define various message types between players (e.g., hello, goodbye, keyexchange, etc.) 
-- build fast mental poker protocols (1 - 6 in paper) 
+## Implementation Details
+
+- Using `sec256k1`, a prime-order elliptic curve E over the field GF(p), where p is prime and E has large embedding degree, and the DDH assumption is believed to hold
+- set up P2P authenticated message exchange between players via the `p2pnetwork` python library
+- Includes the core fast mental poker protocols (1 - 6 in paper) 
     - Protocol 1 (Deck Preparation) :white_check_mark:
     - Protocol 2 (Generate a random element) :white_check_mark:
     - Protocol 3 (Shuffle) :white_check_mark:
@@ -22,14 +28,3 @@ CS227 Mental Poker Project
     - Protocol 5 (Card Drawing) :white_check_mark:
     - Protocol 6 (Card Opening) :white_check_mark:
 
-- Develop actual card game
-    - Something like War is the simplest
-    - Would be more interesting to do Blackjack between two parties (a dealer and player)
-    - Texas Hold'em is a stretch goal, since that involves us creating quite a bit of poker logic
-
-- study Fiat-Shamir heuristic and where we can use it within the Fast Mental Poker protocol
-    - I think we can use it in Protocol 2 to generate a random element :white_check_mark:
-    - Using Fiat-Shamir will save us costs on player interaction / communication, but soundness of our NIZKs will only hold in the ROM
-
-## TODO 2.0 (If time allows)
-- Dockerize for demo
