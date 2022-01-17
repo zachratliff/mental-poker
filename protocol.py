@@ -1,10 +1,11 @@
 import hashlib
+import hmac
 import secrets
 
 from deck import Deck
 
 SHUFFLE_SECURITY_PARAM = 5
-
+HMAC_KEY = b'fd9499da3f13872eedc128019aa8cb484cd5ed8f2526e05579b99689f61ecb1b'
 
 # Returns a non-interactive zero knowledge argument of knowledge
 # for discrete logarithm equality (over an Elliptic Curve sub group)
@@ -13,7 +14,7 @@ def gen_nizk_dleq(curve, g, gx, h, hx, x):
     r = secrets.randbelow(curve.field.n)
     gr = g * r
     hr = h * r
-    c = int(hashlib.sha256(f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8')).hexdigest(), 16)
+    c = int(hmac.new(HMAC_KEY, f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8'), hashlib.sha256).hexdigest(), 16)
     t = r + c * x
     return r, t
 
@@ -21,7 +22,7 @@ def gen_nizk_dleq(curve, g, gx, h, hx, x):
 def verify_nizk_dleq(g, gx, h, hx, r, t):
     hr = h * r
     gr = g * r
-    c = int(hashlib.sha256(f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8')).hexdigest(), 16)
+    c = int(hmac.new(HMAC_KEY, f"{gr.x}{gr.y}{hr.x}{hr.y}{gx.x}{gx.y}{hx.x}{hx.y}".encode('utf-8'), hashlib.sha256).hexdigest(), 16)
     gt = g * t
     ht = h * t
 
@@ -120,7 +121,7 @@ def gen_nizk_shuffle(deck):
         for z in c.cards:
             rom_query += f"{z.x}{z.y}"
 
-        e = int(hashlib.sha256(rom_query.encode('utf-8')).hexdigest(), 16) & 1
+        e = int(hmac.new(HMAC_KEY, rom_query.encode('utf-8'), hashlib.sha256).hexdigest(), 16) & 1
 
         if e == 0:
             m.append((c, y, p_prime))
@@ -153,7 +154,8 @@ def verify_nizk_shuffle(deck, shuffled_deck, m):
         for z in c.cards:
             rom_query += f"{z.x}{z.y}"
 
-        e = int(hashlib.sha256(rom_query.encode('utf-8')).hexdigest(), 16) & 1
+        e = int(hmac.new(HMAC_KEY, rom_query.encode('utf-8'), hashlib.sha256).hexdigest(), 16) & 1
+
         ds = Deck()
         for j in range(0, len(deck.cards)):
             if e == 0:
